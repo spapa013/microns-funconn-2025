@@ -1,0 +1,27 @@
+[build-system]
+requires = ["setuptools", "setuptools-scm"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "funconnect"
+authors = [
+    {name = "Zhuokun Ding", email = "zkding@outlook.com"},
+]
+description = "Functional connectomics reveals general wiring rule in mouse visual cortex"
+requires-python = ">=3.8"
+keywords = ["functional connectomics"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+
+dynamic = ["version"]
+
+[tool.ruff.format]
+# Enable reformatting of code snippets in docstrings.
+docstring-code-format = true
+# Enable preview style formatting.
+preview = true
+
+# configure pyright to only check the code in the current project
+[tool.pyright]
+include = ["."]
