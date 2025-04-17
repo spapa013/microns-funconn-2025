@@ -1,0 +1,12 @@
+version: "3.4"
+
+services:
+  notebook:
+    ipc: host
+    image: ghcr.io/zhuokunding/microns-funconn-2025
+    volumes:
+      - .:/src/microns-funconn-2025
+    ports:
+      - "0.0.0.0:8888:8888"
+    entrypoint: jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token="${JUPYTER_PASSWORD:-}" --no-browser
+
