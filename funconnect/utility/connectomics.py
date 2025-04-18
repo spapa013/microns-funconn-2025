@@ -1,10 +1,11 @@
 import logging
 import pandas as pd
+import numpy as np
 
 logger = logging.getLogger("funconnect")
 
 
-def attach_node_attrs(edge_df, node_df, node_attrs):
+def attach_node_attrs(edge_df, node_df, node_attrs=None):
     """Attach node attributes to edge dataframe.
 
     Args:
@@ -15,7 +16,13 @@ def attach_node_attrs(edge_df, node_df, node_attrs):
     Returns:
         pd.DataFrame: edge dataframe with node attributes attached.
     """
-    assert set(node_attrs).issubset(node_df.columns)
+    if node_attrs:
+        assert set(node_attrs).issubset(node_df.columns)
+    else:
+        attached_node_attrs = [
+            col.replace("pre_", "") for col in edge_df.columns if col.startswith("pre_")
+        ]
+        node_attrs = [col for col in node_df.columns if col not in attached_node_attrs]
     edge_df = (
         edge_df.reset_index()
         .merge(
@@ -52,15 +59,11 @@ def commonize_pre(df, groupby="proj_hva", across="population", minimum_set_group
                     gdf.query(f"{across}=='{a}'")["pre_nucleus_id"].unique()
                 )
         else:
-            unique_across = gdf[across].unique()
-            unqiue_pre_sets = [
-                gdf.query(f"{across}=='{a}'")["pre_nucleus_id"].unique()
-                for a in unique_across
-            ]
-            minimum_pre_set = set(unqiue_pre_sets[0])
-            for pre_set in unqiue_pre_sets[1:]:
-                minimum_pre_set = minimum_pre_set.intersection(pre_set)
-        filtered_gdf = gdf.query(f"pre_nucleus_id in {list(minimum_pre_set)}")
+            pre_nucleus_ids = gdf.groupby(across, observed=True)[
+                "pre_nucleus_id"
+            ].apply(set)
+            minimum_pre_set = set.intersection(*pre_nucleus_ids)
+        filtered_gdf = gdf.query("pre_nucleus_id in @minimum_pre_set")
         if filtered_gdf.pre_nucleus_id.nunique() < gdf.pre_nucleus_id.nunique():
             logger.info(
                 "%d/%d/%d (left/connected/total) pres are left for %s",
@@ -69,7 +72,7 @@ def commonize_pre(df, groupby="proj_hva", across="population", minimum_set_group
                 gdf.pre_nucleus_id.nunique(),
                 g,
             )
-        gdfs.append(gdf.query(f"pre_nucleus_id in {list(minimum_pre_set)}"))
+        gdfs.append(filtered_gdf)
     return pd.concat(gdfs)
 
 
@@ -164,28 +167,34 @@ def filter_edge_data(
     4. no one presyn contributes more than pre_contri_thld of synapses or dend_len in the proj group
     """
     qualified_proj = (
-        var_data.groupby(proj)
+        var_data.groupby(proj, observed=True)
         .filter(
             lambda x: (
                 (
-                    x.groupby("pre_nucleus_id")["dend_len"].sum().gt(0).sum()
+                    x.groupby("pre_nucleus_id", observed=True)["dend_len"]
+                    .sum()
+                    .gt(0)
+                    .sum()
                     > n_pre_thld
                 )  # 1
                 & (
-                    x.groupby("pre_nucleus_id")["n_synapses"].sum().gt(0).sum()
+                    x.groupby("pre_nucleus_id", observed=True)["n_synapses"]
+                    .sum()
+                    .gt(0)
+                    .sum()
                     > n_pre_thld
                 )  # 2
                 & (x["n_synapses"].sum() > n_synapse_thld)  # 3
                 & (
                     (
-                        x.groupby("pre_nucleus_id")["n_synapses"].sum()
+                        x.groupby("pre_nucleus_id", observed=True)["n_synapses"].sum()
                         / x["n_synapses"].sum()
                     ).max()
                     < pre_contrib_thld
                 )  # 4
                 & (
                     (
-                        x.groupby("pre_nucleus_id")["dend_len"].sum()
+                        x.groupby("pre_nucleus_id", observed=True)["dend_len"].sum()
                         / x["dend_len"].sum()
                     ).max()
                     < pre_contrib_thld
@@ -205,17 +214,19 @@ def filter_edge_data(
     # remove pre_nucleus_id with less than n_post_thld
     if n_synapse_per_pre_thld > 0:
         valid_pre = (
-            var_data.groupby(["pre_nucleus_id", proj])["n_synapses"]
+            var_data.groupby(["pre_nucleus_id", proj], observed=True)["n_synapses"]
             .sum()
             .pipe(lambda x: x[x >= n_synapse_per_pre_thld])
             .reset_index()
-            .groupby(proj)["pre_nucleus_id"]
+            .groupby(proj, observed=True)["pre_nucleus_id"]
             .apply(list)
             .to_dict()
         )
         valid_pre_count = {k: len(v) for k, v in valid_pre.items()}
         all_pre_count = {
-            k: var_data.groupby(proj).get_group(k)["pre_nucleus_id"].nunique()
+            k: var_data.groupby(proj, observed=True)
+            .get_group(k)["pre_nucleus_id"]
+            .nunique()
             for k in valid_pre.keys()
         }
         logger.info(
@@ -226,7 +237,7 @@ def filter_edge_data(
             ]),
         )
         var_data = (
-            var_data.groupby(proj)
+            var_data.groupby(proj, observed=True)
             .apply(lambda df: df[df["pre_nucleus_id"].isin(valid_pre[df.name])])
             .reset_index(drop=True)
         )
