@@ -19,7 +19,6 @@ data_dir = Path(
 result_dir = root_dir / "results" / "like2like"
 
 # load data
-# TODO: download data automatically from BossDB
 try:
     edge_data = pd.read_pickle(data_dir / "edge_data_v1.pkl")
     node_data = pd.read_pickle(data_dir / "node_data_v1.pkl")
