@@ -127,8 +127,8 @@ class Glmm:
         return " ".join(parts)
 
     def _fit_glmm(
-        self, rslt_dir: str, n_parallel: int = 4
-    ) -> Tuple[pd.Series, pd.DataFrame]:
+        self, rslt_dir: Path, n_parallel: int = 4
+    ) -> Tuple[ro.ListVector, pd.Series, pd.DataFrame]:
         """
         Fit a glmmTMB model to the data.
         """
@@ -179,7 +179,7 @@ class Glmm:
         ro.r("gc()")
         return r_model, model_performance, model_coef
 
-    def _fit_emtrends(self, model) -> pd.DataFrame:
+    def _fit_emtrends(self, model: ro.ListVector) -> Tuple[ro.ListVector, pd.DataFrame]:
         """
         Fit emtrends to the glmmTMB model.
         """
@@ -217,7 +217,7 @@ class Glmm:
         ro.r("gc()")
         return r_emtrends, trend
 
-    def _fit_pairwise(self, r_emtrends) -> pd.DataFrame:
+    def _fit_pairwise(self, r_emtrends: ro.ListVector) -> pd.DataFrame:
         """
         Fit pairwise comparisons to the emmeans results.
         """
@@ -245,7 +245,7 @@ class Glmm:
         ro.r("gc()")
         return pair_trend
 
-    def _meta_info(self):
+    def _meta_info(self) -> pd.DataFrame:
         """
         Return meta info for the model.
         """
@@ -261,7 +261,7 @@ class Glmm:
             meta_info.append(_meta_info)
         return pd.DataFrame(meta_info)
 
-    def fit(self, rslt_dir: str, n_parallel: int = 4, save: bool = True) -> GlmmRslt:
+    def fit(self, rslt_dir: Path, n_parallel: int = 4, save: bool = True) -> GlmmRslt:
         """
         Fit the GLMM model and return the results.
         """
