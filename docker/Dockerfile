@@ -89,7 +89,7 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 # Correct permissions
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
-COPY initial-condarc "${CONDA_DIR}/.condarc"
+COPY /docker/initial-condarc "${CONDA_DIR}/.condarc"
 WORKDIR /tmp
 RUN curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj bin/micromamba && \
     PYTHON_SPECIFIER="python=${PYTHON_VERSION}" && \
