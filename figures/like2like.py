@@ -12,10 +12,7 @@ plt.rcParams.update(rcParams.arial_desat)
 
 
 root_dir = Path(__file__).parent.parent
-# data_dir = root_dir / "data"
-data_dir = Path(
-    "/mnt/lab/users/zhuokun/microns-funconnect/projects/functional_connectomics/code_release/data/functional_connectomics"
-)
+data_dir = Path("/data")
 result_dir = root_dir / "results" / "like2like"
 
 # load data

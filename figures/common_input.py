@@ -10,7 +10,7 @@ plt.rcParams.update(rcParams.arial_desat)
 
 
 root_dir = Path(__file__).parent.parent
-result_dir = root_dir / "funconnect" / "results" / "common_inputs"
+result_dir = root_dir / "results" / "common_inputs"
 
 # load results
 try:
