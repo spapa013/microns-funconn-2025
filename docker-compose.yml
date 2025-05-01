@@ -8,5 +8,5 @@ services:
       - .:/src/microns-funconn-2025
     ports:
       - "0.0.0.0:8888:8888"
-    entrypoint: jupyter lab --ip=0.0.0.0 --allow-root --NotebookApp.token="${JUPYTER_PASSWORD:-}" --no-browser
+    entrypoint: jupyter lab --ip=0.0.0.0 --allow-root --no-browser
 
