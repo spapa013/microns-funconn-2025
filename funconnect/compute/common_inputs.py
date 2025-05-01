@@ -143,12 +143,6 @@ def fit_models(edge_data, variables, result_dir):
 
         logger.info(f"Predictions for {pred_name} added to edge_data")
 
-    # Save processed edge data
-    edge_data.to_pickle(result_dir / "edge_data_common_input.pkl")
-    logger.info(
-        f"Processed edge data saved to {result_dir / 'edge_data_common_input.pkl'}"
-    )
-
     return edge_data
 
 
@@ -214,12 +208,8 @@ def analyze_connectivity(edge_data, M_sc_is, result_dir):
                 })
                 pbar.update()
 
-    # Convert to DataFrame and save
+    # Convert to DataFrame
     pre_mean_corr = pd.DataFrame(pre_mean_corr)
-    pre_mean_corr.to_feather(result_dir / "pre_mean_corr.feather")
-    logger.info(
-        f"Pre-mean correlation data saved to {result_dir / 'pre_mean_corr.feather'}"
-    )
 
     return pre_mean_corr
 
@@ -284,10 +274,6 @@ def perform_statistical_analysis(pre_mean_corr, result_dir):
         lambda x: sm.stats.multipletests(x, method="fdr_bh")[1]
     )
 
-    # Save results
-    stats_results.to_csv(result_dir / "stats_results.csv", index=False)
-    logger.info(f"Statistical results saved to {result_dir / 'stats_results.csv'}")
-
     return stats_results
 
 
@@ -313,7 +299,15 @@ def main(data_dir, result_dir):
 
     logger.info("Analysis completed successfully")
 
-    return edge_data, pre_mean_corr, stats_results
+    # Save results
+    pre_mean_corr.to_feather(result_dir / "pre_mean_corr.feather")
+    logger.info(
+        f"Pre-mean correlation data saved to {result_dir / 'pre_mean_corr.feather'}"
+    )
+    stats_results.to_csv(result_dir / "stats_results.csv", index=False)
+    logger.info(f"Statistical results saved to {result_dir / 'stats_results.csv'}")
+
+    return
 
 
 if __name__ == "__main__":
