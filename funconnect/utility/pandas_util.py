@@ -78,6 +78,13 @@ def set_dtype(df):
         elif col in INTERVAL:
             df[col] = df[col].apply(INTERVAL[col])
             logger.info(f"Converted {col} to interval")
+        elif pd.api.types.is_integer_dtype(df[col]):
+            df[col] = df[col].astype("int64")
+            logger.info(f"Converted {col} to int64")
+        elif pd.api.types.is_float_dtype(df[col]):
+            df[col] = df[col].astype("float64")
+            logger.info(f"Converted {col} to float64")
+
     return df
 
 

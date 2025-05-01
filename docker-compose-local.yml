@@ -1,0 +1,15 @@
+version: "3.4"
+
+services:
+  test:
+    container_name: microns-funconn-2025-local
+    build:
+      context: docker
+    ipc: host
+    volumes:
+      - .:/src/microns-funconn-2025
+    ports:
+      - "0.0.0.0:8887:8888"
+    working_dir: /src/microns-funconn-2025
+    entrypoint: bash -c "pip install -e . && jupyter lab --ip=0.0.0.0 --allow-root --no-browser"
+  

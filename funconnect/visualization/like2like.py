@@ -30,7 +30,7 @@ def plot_presyn_mean(presyn_mean, presyn_stats, variable: Variables):
     presyn_stats["star"] = presyn_stats["p_adj"].apply(p_to_star)
     data2plot = presyn_mean.query("variable_name==@variable.name").copy()
     summary = (
-        data2plot.groupby(["proj_hva", "population"])
+        data2plot.groupby(["proj_hva", "population"], observed=True)
         .apply(
             lambda df: pd.Series({
                 "mean": df["variable_mean"].mean(),
@@ -77,9 +77,9 @@ def plot_presyn_mean(presyn_mean, presyn_stats, variable: Variables):
                     proj=proj,
                     pop=p,
                     x=bar_pos,
-                    y=float(bar_data["mean"].to_numpy()),
-                    y_top=float(bar_data["se_high"].to_numpy()),
-                    y_bottom=float(bar_data["se_low"].to_numpy()),
+                    y=bar_data["mean"].iloc[0],
+                    y_top=bar_data["se_high"].iloc[0],
+                    y_bottom=bar_data["se_low"].iloc[0],
                 )
             )
     bar_positions = pd.DataFrame(bar_positions)
@@ -88,12 +88,12 @@ def plot_presyn_mean(presyn_mean, presyn_stats, variable: Variables):
     # add stars
     for s in presyn_stats.query("variable_name==@variable.name").itertuples():
         # find the bar position
-        pos_1 = float(
-            bar_positions.query(f"proj=='{s.proj_hva}' and pop=='{s.population_1}'").x
-        )
-        pos_2 = float(
-            bar_positions.query(f"proj=='{s.proj_hva}' and pop=='{s.population_2}'").x
-        )
+        pos_1 = bar_positions.query(
+            f"proj=='{s.proj_hva}' and pop=='{s.population_1}'"
+        ).x.iloc[0]
+        pos_2 = bar_positions.query(
+            f"proj=='{s.proj_hva}' and pop=='{s.population_2}'"
+        ).x.iloc[0]
         y_top = bar_positions.query(f"proj=='{s.proj_hva}'").y_top.max()
         if s.comparison == "Connected vs ADP":
             y_offset = 1.5 * y_offset_unit_data
@@ -132,7 +132,7 @@ def plot_presyn_mean(presyn_mean, presyn_stats, variable: Variables):
     # custom legend
     plt.figlegend(
         handles=[
-            Patch(color=f"C{j}", edgecolor=f"C{j}", label=p)
+            Patch(color=f"C{j}", label=p)
             for j, p in enumerate(summary["population"].unique())
         ],
         loc="outside right upper",
@@ -203,7 +203,7 @@ def plot_like2like_area(
     ):
         for j, (var, var_bs) in enumerate(q_bs.groupby("variable_name", observed=True)):
             for i, (ax, (proj, bs)) in enumerate(
-                zip(qaxes, var_bs.groupby("proj_hva"))
+                zip(qaxes, var_bs.groupby("proj_hva", observed=True))
             ):
                 if j > 0:
                     ax = ax.twiny()
@@ -381,10 +381,12 @@ def plot_synapse_quantity(
             data["x_bin"] = pd.cut(data["x"], bins=5)
         data["x_center"] = data.x_bin.apply(lambda x: x.mid).astype(float)
         summary = (
-            data.groupby("x_center")["y"].agg(["mean", "sem", "count"]).reset_index()
+            data.groupby("x_center", observed=True)["y"]
+            .agg(["mean", "sem", "count"])
+            .reset_index()
         )
         summary = summary.query("count>10")
-        l = ax.scatter(
+        scatter_plot = ax.scatter(
             summary.x_center + offset,
             summary["mean"],
             edgecolor="none",
@@ -395,8 +397,8 @@ def plot_synapse_quantity(
             else r"$log_{10}$" + var.value.name_latex,
             alpha=alpha,
         )
-        lines.append(l)
-        labels.append(l.get_label())
+        lines.append(scatter_plot)
+        labels.append(scatter_plot.get_label())
         ax.errorbar(
             summary.x_center + offset,
             summary["mean"],
@@ -544,43 +546,3 @@ def plot_coef_matrix(
         min_size=min_size,
         size_as_area=True,
     )
-
-
-# %%
-if __name__ == "__main__":
-    # import libraries
-    from pathlib import Path
-
-    import pandas as pd
-    from matplotlib import pyplot as plt
-
-    from funconnect.stats.like2like import load_bs_stats, load_glmm_results
-    from funconnect.utility.plot import rcParams
-
-    plt.rcParams.update(rcParams.arial_desat)
-
-    data_dir = Path(
-        "/mnt/lab/users/zhuokun/microns-funconnect/projects/functional_connectomics/code_release/data/functional_connectomics"
-    )
-    result_dir = Path(
-        "/mnt/lab/users/zhuokun/microns-funconnect/projects/functional_connectomics/code_release/like2like"
-    )
-
-    # load data
-    # TODO: add data download link
-    try:
-        edge_data = pd.read_feather(data_dir / "edge_data.feather")
-    except FileNotFoundError:
-        raise FileNotFoundError("File not found: edge_data.feather")
-
-    # load results
-    # TODO: change the path to the compute script
-    try:
-        presyn_mean = pd.read_feather(result_dir / "area" / "presyn_mean.feather")
-        presyn_stats = pd.read_feather(result_dir / "area" / "presyn_stats.feather")
-        glmm_rslts = load_glmm_results(result_dir / "area")
-        bs_stats = load_bs_stats(result_dir / "area")
-    except FileNotFoundError:
-        raise FileNotFoundError(
-            "Analysis results not found, please run the analysis first with `run_analysis.py`"
-        )
