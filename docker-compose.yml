@@ -2,11 +2,14 @@ version: "3.4"
 
 services:
   notebook:
-    ipc: host
+    container_name: microns-funconn-2025
     image: ghcr.io/zhuokunding/microns-funconn-2025
+    ipc: host
     volumes:
       - .:/src/microns-funconn-2025
+      - /ssh-agent:/ssh-agent  # Mount the SSH agent socket for SSH key forwarding
     ports:
       - "0.0.0.0:8888:8888"
-    entrypoint: jupyter lab --ip=0.0.0.0 --allow-root --no-browser
+    working_dir: /src/microns-funconn-2025
+    entrypoint: bash -c "pip install -e . && jupyter lab --ip=0.0.0.0 --allow-root --no-browser"
 
