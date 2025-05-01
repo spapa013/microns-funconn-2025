@@ -214,11 +214,8 @@ RUN mkdir -p /data && \
     wget https://s3.amazonaws.com/bossdb-open-data/iarpa_microns/minnie/functional_data/functional_connectomics/node_and_edge_properties/v1/node_data_v1.pkl && \
     wget https://s3.amazonaws.com/bossdb-open-data/iarpa_microns/minnie/functional_data/functional_connectomics/node_and_edge_properties/v1/edge_data_v1.pkl
 
-# Copy the package files
-COPY --chown=root:root ../setup.py ../pyproject.toml ../README.md /src/microns-funconn-2025/
-COPY --chown=root:root ../funconnect /src/microns-funconn-2025/funconnect/
+# Install funconn
+COPY --chown=root:root .. /src/microns-funconn-2025/
+RUN cd /src/microns-funconn-2025 && pip install -e .
 
-# Install the package
-RUN cd /src/microns-funconn-2025/funconnect && pip install -e .
-
-WORKDIR "/src/microns-funconn-2025/funconnect"
+WORKDIR "/src/microns-funconn-2025"
