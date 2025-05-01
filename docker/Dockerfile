@@ -189,9 +189,9 @@ RUN jupyter notebook --generate-config && \
 
 
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
-COPY jupyter_server_config.py /etc/jupyter/
+COPY docker/jupyter_server_config.py /etc/jupyter/
 # Add R mimetype option to specify how the plot returns from R to the browser
-COPY Rprofile.site /opt/conda/lib/R/etc/
+COPY docker/Rprofile.site /opt/conda/lib/R/etc/
 
 # Legacy for Jupyter Notebook Server, see: [#1205](https://github.com/jupyter/docker-stacks/issues/1205)
 RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
@@ -215,7 +215,7 @@ RUN mkdir -p /data && \
     wget https://s3.amazonaws.com/bossdb-open-data/iarpa_microns/minnie/functional_data/functional_connectomics/node_and_edge_properties/v1/edge_data_v1.pkl
 
 # Install funconn
-COPY --chown=root:root .. /src/microns-funconn-2025/
+COPY --chown=root:root . /src/microns-funconn-2025/
 RUN cd /src/microns-funconn-2025 && pip install -e .
 
 WORKDIR "/src/microns-funconn-2025"
