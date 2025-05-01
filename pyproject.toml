@@ -16,7 +16,6 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.12",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Scientific/Engineering",
 ]
@@ -41,6 +40,9 @@ dynamic = ["version"]
 "Bug Tracker" = "https://github.com/zhuokunding/microns-funconn-2025/issues"
 "Documentation" = "https://github.com/zhuokunding/microns-funconn-2025/blob/main/README.md"
 "Paper" = "https://doi.org/10.1038/s41586-025-08840-3"
+
+[tool.setuptools]
+packages = ["funconnect"]
 
 [tool.setuptools_scm]
 write_to = "funconnect/version.py"

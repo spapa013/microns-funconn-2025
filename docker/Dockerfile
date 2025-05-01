@@ -89,7 +89,7 @@ RUN sed -i 's/^#force_color_prompt=yes/force_color_prompt=yes/' /etc/skel/.bashr
 # Correct permissions
 # Do all this in a single RUN command to avoid duplicating all of the
 # files across image layers when the permissions change
-COPY /docker/initial-condarc "${CONDA_DIR}/.condarc"
+COPY initial-condarc "${CONDA_DIR}/.condarc"
 WORKDIR /tmp
 RUN curl -Ls https://micro.mamba.pm/api/micromamba/linux-64/latest | tar -xj bin/micromamba && \
     PYTHON_SPECIFIER="python=${PYTHON_VERSION}" && \
@@ -189,9 +189,9 @@ RUN jupyter notebook --generate-config && \
 
 
 # Currently need to have both jupyter_notebook_config and jupyter_server_config to support classic and lab
-COPY docker/jupyter_server_config.py /etc/jupyter/
+COPY jupyter_server_config.py /etc/jupyter/
 # Add R mimetype option to specify how the plot returns from R to the browser
-COPY docker/Rprofile.site /opt/conda/lib/R/etc/
+COPY Rprofile.site /opt/conda/lib/R/etc/
 
 # Legacy for Jupyter Notebook Server, see: [#1205](https://github.com/jupyter/docker-stacks/issues/1205)
 RUN sed -re "s/c.ServerApp/c.NotebookApp/g" \
@@ -214,8 +214,3 @@ RUN mkdir -p /data && \
     wget https://s3.amazonaws.com/bossdb-open-data/iarpa_microns/minnie/functional_data/functional_connectomics/node_and_edge_properties/v1/node_data_v1.pkl && \
     wget https://s3.amazonaws.com/bossdb-open-data/iarpa_microns/minnie/functional_data/functional_connectomics/node_and_edge_properties/v1/edge_data_v1.pkl
 
-# Install funconn
-COPY --chown=root:root . /src/microns-funconn-2025/
-RUN cd /src/microns-funconn-2025 && pip install -e .
-
-WORKDIR "/src/microns-funconn-2025"
