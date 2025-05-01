@@ -36,9 +36,9 @@ dependencies = [
 dynamic = ["version"]
 
 [project.urls]
-"Homepage" = "https://github.com/zhuokunding/microns-funconn-2025"
-"Bug Tracker" = "https://github.com/zhuokunding/microns-funconn-2025/issues"
-"Documentation" = "https://github.com/zhuokunding/microns-funconn-2025/blob/main/README.md"
+"Homepage" = "https://github.com/cajal/microns-funconn-2025"
+"Bug Tracker" = "https://github.com/cajal/microns-funconn-2025/issues"
+"Documentation" = "https://github.com/cajal/microns-funconn-2025/blob/main/README.md"
 "Paper" = "https://doi.org/10.1038/s41586-025-08840-3"
 
 [tool.setuptools]

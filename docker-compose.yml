@@ -3,7 +3,7 @@ version: "3.4"
 services:
   notebook:
     container_name: microns-funconn-2025
-    image: ghcr.io/zhuokunding/microns-funconn-2025
+    image: ghcr.io/${REGISTRY_NAME}/microns-funconn-2025
     ipc: host
     volumes:
       - .:/src/microns-funconn-2025
@@ -11,5 +11,8 @@ services:
     ports:
       - "0.0.0.0:8888:8888"
     working_dir: /src/microns-funconn-2025
-    entrypoint: bash -c "pip install -e . && jupyter lab --ip=0.0.0.0 --allow-root --no-browser"
+    entrypoint: bash -c "pip install -e . && jupyter lab --ip=0.0.0.0 --allow-root --no-browser --NotebookApp.token='${JUPYTER_PASSWORD}'"
+    env_file: .env
+    environment:
+      - JUPYTER_PASSWORD=${JUPYTER_PASSWORD:-password}
 
