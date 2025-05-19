@@ -21,7 +21,7 @@ logger = logging.getLogger("funconnect")
 
 n_parallel = int(os.getenv("N_PARALLEL", 6))  # number of parallel processes
 root_dir = Path(__file__).parent.parent
-data_dir = root_dir / "data"
+data_dir = "/data"
 result_dir = root_dir / "results" / "like2like"
 
 variable_names: List[str] = [
@@ -58,7 +58,7 @@ def run_like2like_analysis(
     n_parallel (int): Number of parallel processes to use.
     """
     # load data
-    edge_data = pd.read_feather(data_dir / "edge_data.feather")
+    edge_data = pd.read_pickle(data_dir / "edge_data_v1.pkl")
 
     # compute presynaptic mean of different variables
     area_dir = Path(result_dir / "area")
