@@ -6,6 +6,8 @@
 
 This repository contains the code for the paper "Functional connectomics reveals general wiring rule in mouse visual cortex".
 
+[https://doi.org/10.1038/s41586-025-08840-3](https://doi.org/10.1038/s41586-025-08840-3).
+
 ## Installation
 
 You can set up this project in several ways:
@@ -33,6 +35,7 @@ The easiest way to get started is to use our pre-built Docker container which in
 
 3. Access Jupyter Lab:
    Open your browser and navigate to `http://localhost:8888`
+   Note: It may take a few seconds for the content to become accessible.
 
 
 ### Option 2: Install with pip
@@ -81,8 +84,35 @@ The intermediate results files are already included in the `results` folder. Not
 
 To reproduce the intermediate results, you can run the following scripts:
 - `funconnect/compute/like2like.py` - Script to generate the like-to-like connectivity analysis results
-- `funconnect/compute/common_input.py` - Script to generate the common input analysis results
+- `funconnect/compute/common_inputs.py` - Script to generate the common input analysis results
+
+To run the scripts, open a terminal inside the `./funconnect/compute/` directory and run:
+```bash
+python3 ./common_inputs.py
+python3 ./like2like.py
+```
+
+Intermediate results are stored in `funconnect/results` and should match the results in the `results` folder.
 
 ## Data Availability
 
-The datasets analyzed in this study are available at [https://doi.org/10.1038/s41586-025-08840-3](https://doi.org/10.1038/s41586-025-08840-3).
+To access the datasets analyzed in this study, please see the [data availability](https://www.nature.com/articles/s41586-025-08840-3#data-availability) section of the manuscript.
+
+They are also downloaded inside the Docker container at `/data`.
+
+## Citation
+
+If you find this repository useful, please cite using this BibTeX:
+
+```bibtex
+@article{ding2025functional,
+  title={Functional connectomics reveals general wiring rule in mouse visual cortex},
+  author={Ding, Zhuokun and Fahey, Paul G and Papadopoulos, Stelios and Wang, Eric Y and Celii, Brendan and Papadopoulos, Christos and Chang, Andersen and Kunin, Alexander B and Tran, Dat and Fu, Jiakun and others},
+  journal={Nature},
+  volume={640},
+  number={8058},
+  pages={459--469},
+  year={2025},
+  publisher={Nature Publishing Group UK London}
+}
+```
